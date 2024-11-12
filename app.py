@@ -7,7 +7,9 @@ import google.generativeai as genai
 
 from youtube_transcript_api import YouTubeTranscriptApi
 
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+# Configure Google Gemini API using Streamlit Secrets
+genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+#genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # Function to get YouTube video ID
 def get_video_id(youtube_video_url):
