@@ -4,7 +4,7 @@ This Streamlit app allows users to summarize YouTube video transcripts and ask f
 
 # *Features*
 
-YouTube Video Transcript Extraction: Automatically extracts the transcript from a given YouTube video.
-Summarization: Generates a concise summary of the transcript using Google Gemini Pro's language model.
-Interactive Q&A: Allows users to ask questions related to the video content, with answers generated from the transcript.
+YouTube Video Transcript Extraction: Automatically extracts the transcript from a given YouTube video.  
+Summarization: Generates a concise summary of the transcript using Google Gemini Pro's language model.  
+Interactive Q&A: Allows users to ask questions related to the video content, with answers generated from the transcript.  
 Adjustable Video Thumbnail: Displays the YouTube video with an adjustable width for easy viewing within the app.
