@@ -8,8 +8,8 @@ import google.generativeai as genai
 from youtube_transcript_api import YouTubeTranscriptApi, _errors
 
 # Configure Google Gemini API using Streamlit Secrets
-genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-#genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+#genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # Function to get YouTube video ID
 def get_video_id(youtube_video_url):
@@ -21,13 +21,21 @@ def extract_transcript_details(youtube_video_url):
         video_id=youtube_video_url.split("=")[1]
         transcript_text=YouTubeTranscriptApi.get_transcript(video_id)
 
-        transcript = " ".join([i["text"] for i in transcript_text])
+        #transcript = " ".join([i["text"] for i in transcript_text])
+        transcript = ""
+        for i in transcript_text:
+             transcript += " " + i["text"]
 
-        return transcript
+        # Display the first 500 words separately, without affecting the full transcript
+        first_500_words = " ".join(transcript.split()[:500])
+    
+        return transcript, first_500_words
+    
     except _errors.TranscriptsDisabled:
         st.error("Transcripts are disabled for this video.")
         return ""
     except Exception as e:
+        st.error(f"An error occurred: {e}")
         raise e
     
 ## getting the summary based on Prompt from Google Gemini Pro
@@ -91,7 +99,9 @@ video_width_percentage = st.sidebar.slider("Video Width (%)", min_value=10, max_
 if st.button("Get Detailed Notes"):
     st.session_state['youtube_link'] = youtube_link
     st.session_state['video_id'] = get_video_id(youtube_link)
-    st.session_state['transcript_text'] = extract_transcript_details(youtube_link)
+    
+    full_transcript, first_500_words = extract_transcript_details(youtube_link)
+    st.session_state['transcript_text'] = full_transcript
 
     if st.session_state['transcript_text']:
         # Adjust the prompt to include the word count entered by the user
@@ -100,6 +110,9 @@ if st.button("Get Detailed Notes"):
         within {word_count} words. Please provide the summary of the text given here: """
 
         st.session_state['summary']=generate_gemini_content(st.session_state['transcript_text'],prompt)
+         # Display the first 500 words of the transcript
+        st.markdown("### First 500 Words of Transcript:")
+        st.write(first_500_words)
 
 # Display video in a centered container with adjustable width
 if st.session_state['video_id']:
