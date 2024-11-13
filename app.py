@@ -103,7 +103,7 @@ if st.button("Get Detailed Notes"):
     full_transcript, first_500_words = extract_transcript_details(youtube_link)
     
 
-    if st.session_state['transcript_text']:
+    if full_transcript and first_500_words:
         st.session_state['transcript_text'] = full_transcript
         # Adjust the prompt to include the word count entered by the user
         prompt = f"""You are a YouTube video summarizer. You will be taking the transcript text
