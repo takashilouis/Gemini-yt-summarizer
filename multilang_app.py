@@ -5,15 +5,32 @@ load_dotenv() ##load all the nevironment variables
 import os
 import google.generativeai as genai
 
-from youtube_transcript_api import YouTubeTranscriptApi, _errors
+from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api._errors import TranscriptsDisabled, NoTranscriptFound
 
 # Configure Google Gemini API using Streamlit Secrets
-genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-#genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+#genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # Function to get YouTube video ID
 def get_video_id(youtube_video_url):
     return youtube_video_url.split("=")[1]
+
+# Function to check available languages for a video's transcript
+def list_available_transcripts(video_id):
+    try:
+        transcripts = YouTubeTranscriptApi.list_transcripts(video_id)
+        available_languages = [trans.language_code for trans in transcripts]
+        return available_languages
+    except TranscriptsDisabled:
+        st.error("Transcripts are disabled for this video.")
+        return []
+    except NoTranscriptFound:
+        st.error("No transcript found for this video.")
+        return []
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+        return []
 
 ## getting the transcript data from yt videos
 def extract_transcript_details(youtube_video_url):
@@ -22,11 +39,12 @@ def extract_transcript_details(youtube_video_url):
         transcript_text=YouTubeTranscriptApi.get_transcript(video_id)
 
         transcript = " ".join([i["text"] for i in transcript_text])
+        # transcript = ""
+        # for i in transcript_text:
+        #     transcript += " " + i["text"]
 
         return transcript
-    except _errors.TranscriptsDisabled:
-        st.error("Transcripts are disabled for this video.")
-        return ""
+
     except Exception as e:
         raise e
     
@@ -82,6 +100,18 @@ if 'video_id' not in st.session_state:
 st.title("YouTube Video Summarizer and Q&A")
 
 youtube_link = st.text_input("Enter YouTube Video Link:")
+
+# Button to check available transcription languages
+if st.button("Check Available Transcriptions"):
+    video_id = get_video_id(youtube_link)
+    available_languages = list_available_transcripts(video_id)
+    
+    if available_languages:
+        st.markdown("### Available Transcription Languages:")
+        st.write(", ".join(available_languages))
+    else:
+        st.write("No transcriptions available for this video.")
+
 word_count = st.number_input("Enter the desired number of words for the summary:", min_value=50, max_value=1000, value=250)
 
 # Video width slider
