@@ -8,8 +8,8 @@ import google.generativeai as genai
 from youtube_transcript_api import YouTubeTranscriptApi, _errors
 
 # Configure Google Gemini API using Streamlit Secrets
-#genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+#genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # Function to get YouTube video ID
 def get_video_id(youtube_video_url):
@@ -33,10 +33,10 @@ def extract_transcript_details(youtube_video_url):
     
     except _errors.TranscriptsDisabled:
         st.error("Transcripts are disabled for this video.")
-        return ""
+        return None, None
     except Exception as e:
         st.error(f"An error occurred: {e}")
-        raise e
+        return None, None
     
 ## getting the summary based on Prompt from Google Gemini Pro
 def generate_gemini_content(transcript_text,prompt):
@@ -101,9 +101,10 @@ if st.button("Get Detailed Notes"):
     st.session_state['video_id'] = get_video_id(youtube_link)
     
     full_transcript, first_500_words = extract_transcript_details(youtube_link)
-    st.session_state['transcript_text'] = full_transcript
+    
 
     if st.session_state['transcript_text']:
+        st.session_state['transcript_text'] = full_transcript
         # Adjust the prompt to include the word count entered by the user
         prompt = f"""You are a YouTube video summarizer. You will be taking the transcript text
         and summarizing the entire video and providing the important summary in points
