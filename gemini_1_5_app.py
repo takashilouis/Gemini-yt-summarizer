@@ -1,3 +1,5 @@
+#Backup
+
 import streamlit as st
 from dotenv import load_dotenv
 import os
@@ -15,20 +17,18 @@ st.set_page_config(
 load_dotenv()
 
 # Configure Google Gemini API - Support both local env and Streamlit secrets
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-
-if GOOGLE_API_KEY:
-    # Use environment variable if available (for local development)
-    genai.configure(api_key=GOOGLE_API_KEY)
-    st.sidebar.success("Using Environment Variable for API key")
-else:
-    # Fall back to Streamlit secrets (for cloud deployment)
-    try:
-        genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-        st.sidebar.success("Using Streamlit Secrets for API key")
-    except Exception:
+try:
+    # Try to use Streamlit secrets first (for Streamlit Cloud deployment)
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+    st.sidebar.success("Using Streamlit Secrets for API key")
+except Exception:
+    # Fall back to environment variable (for local development)
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+    if not GOOGLE_API_KEY:
         st.error("Google API Key not found. Please set it in .streamlit/secrets.toml or as an environment variable.")
         st.stop()
+    genai.configure(api_key=GOOGLE_API_KEY)
+    st.sidebar.success("Using Environment Variable for API key")
 
 # Function to get YouTube video ID
 def get_video_id(youtube_video_url):
