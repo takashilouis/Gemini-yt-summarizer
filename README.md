@@ -12,3 +12,5 @@ Summarization: Generates a concise summary of the transcript using Google Gemini
 Interactive Q&A: Allows users to ask questions related to the video content, with answers generated from the transcript.</br>
 ![Interactive Q&A section](assets/q&a.png)
 Adjustable Video Thumbnail: Displays the YouTube video with an adjustable width for easy viewing within the app.</br>
+
+Live on Streamlit: https://ytsummar.streamlit.app/
